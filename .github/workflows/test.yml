@@ -1,0 +1,27 @@
+name: Run automated tests
+on:
+ push:
+ branches: ["main"]
+ workflow_dispatch:
+jobs:
+ test_and_build:
+ name: Test and build
+ runs-on: ubuntu-latest
+ steps:
+ - uses: actions/checkout@v4
+ - name: Set up JDK
+ uses: actions/setup-java@v4
+ with:
+ java-version: '11'
+ distribution: 'temurin'
+ - name: Run tests
+ run: mvn clean test | tee test.log
+ - name: Build package
+ run: mvn clean package
+ - name: Prepare artefacts
+ run: mkdir artefacts && cp test.log target/*.jar artefacts
+ - name: Upload artefacts
+ uses: actions/upload-artifact@v4
+ with:
+ name: Package
+ path: artefacts
